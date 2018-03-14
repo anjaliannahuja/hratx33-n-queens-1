@@ -40,19 +40,18 @@ window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
   console.log('unsafe positions', JSON.stringify(unsafePositions));
   //Calculate next available position for rook
 
-  const positionToOccupy = findNextPosition(unsafePositions);
+  const positionToOccupy = findNextPosition(unsafePositions, n);
   console.log('position to occupy', positionToOccupy)
   if (positionToOccupy === -1) return board;
   board += (1 << (positionToOccupy - 1));
-  
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(board));
+  console.log('board before recursive statement', board);  
   return window.findNRooksSolution(n, board);
 };
 
 const findBinaryRepresentation = (number, binaryString = '') => {
   if (number === 0) return '';
   binaryString += '' + (number % 2);
-  return findBinaryRepresentation(Math.floor(number/2));
+  return binaryString + findBinaryRepresentation(Math.floor(number/2), binaryString);
 }
 
 const findUnsafePositions = (binaryString, n) => {
@@ -60,35 +59,43 @@ const findUnsafePositions = (binaryString, n) => {
   //Positions with a 1
   const bitPositions = [];
   for (let stringIndexPos = 0; stringIndexPos < flippedString.length; stringIndexPos++) {
-    if (flippedString[stringIndexPos] === 1) bitPositions.push(stringIndexPos + 1);
+    if (flippedString[stringIndexPos] === '1') {
+      bitPositions.push(stringIndexPos + 1);
+    }
   }
+  console.log('bit positions', JSON.stringify(bitPositions));
   //Calculate unsafe positions for each bit in bitPositions, then sort the unsafe positions
   //and remove duplicates
-  const unsafePositions = new Set();
+  const unsafePositions = [];
   for (const position of bitPositions) {
     const firstOfRow = Math.floor(position / n) * n + 1;
     for (let count = 0; count < n; count++) {
-      unsafePositions.add(firstOfRow + count);
+      unsafePositions.push(firstOfRow + count);
     }
     const firstOfCol = position % n;
     for (let count = 0; count < n; count++) {
-      unsafePositions.add(firstOfCol + n * count);
+      unsafePositions.push(firstOfCol + n * count);
     }
   }
-  return unsafePositions;
+
+  return unsafePositions.sort().filter(function(item, pos, ary) {
+        return !pos || item != ary[pos - 1];
+  });
 }
 
-const findNextPosition = unsafePositions => {
+const findNextPosition = (unsafePositions, n) => {
   let availablePosition = -1;
-  unsafePositions.forEach((takenPosition) => {
+  let index = 0;
+  unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
+    if (unsafePosition >= n) return undefined;
     if (availablePosition === -1) {
       //If the next position equals this position + 1, then the next bit is not safe
-      if (takenPosition + 1 !== unsafePositions[index + 1]) {
-        availablePosition = takenPosition + 1;
-        return availablePosition;      
+      if (unsafePosition + 1 !== unsafePositions[index + 1]) {
+        availablePosition = unsafePosition + 1;
       }
     }
+    index++;
   });
   return availablePosition;
 }
