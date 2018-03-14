@@ -28,6 +28,7 @@
  *       
  */
 window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
+  console.log('start board', startBoard)
   let board = startBoard + initial === 0 ? 0 : (1 << initial);
   console.log('initial board', board);
   let binaryString = findBinaryRepresentation(board);
@@ -45,7 +46,7 @@ window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
   if (positionToOccupy === -1) return board;
   board += (1 << (positionToOccupy - 1));
   console.log('board before recursive statement', board);  
-  return window.findNRooksSolution(n, board);
+  return window.findNRooksSolution(n, board, 0);
 };
 
 const findBinaryRepresentation = (number, binaryString = '') => {
@@ -88,10 +89,13 @@ const findNextPosition = (unsafePositions, n) => {
   let index = 0;
   unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
-    if (unsafePosition >= n) return undefined;
+    console.log('unsafe position', unsafePosition)
+    if (unsafePosition >= n ** 2) return -1;
     if (availablePosition === -1) {
+      console.log('avail pos = -1')
       //If the next position equals this position + 1, then the next bit is not safe
       if (unsafePosition + 1 !== unsafePositions[index + 1]) {
+        console.log('setting avail pos');
         availablePosition = unsafePosition + 1;
       }
     }
