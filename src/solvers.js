@@ -28,31 +28,27 @@
  *       
  */
 window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
-  console.log('start board', startBoard)
   let board = startBoard //+ initial === 0 ? 0 : (1 << initial);
-  console.log('initial board', board);
   let binaryString = findBinaryRepresentation(board);
   //Put binary representation of board into binaryString
 
-  console.log('binary representation of board', binaryString);
   //Get index + 1 of every bit in the binaryString, put those into binaryPositions
 
   const unsafePositions = findUnsafePositions(binaryString, n);
-  console.log('unsafe positions', JSON.stringify(unsafePositions));
   //Calculate next available position for rook
 
   const positionToOccupy = findNextPosition(unsafePositions, n);
-  console.log('position to occupy', positionToOccupy)
-  if (positionToOccupy === -1) return board;
+  if (positionToOccupy === -1) {
+    return board;
+  }
   board += (1 << (positionToOccupy - 1));
-  console.log('board before recursive statement', board);  
   return window.findNRooksSolution(n, board, 0);
 };
 
 const findBinaryRepresentation = (number, binaryString = '') => {
   if (number === 0) return '';
   binaryString += '' + (number % 2);
-  return findBinaryRepresentation(Math.floor(number/2), binaryString);
+  return binaryString + findBinaryRepresentation(Math.floor(number/2));
 }
 
 const findUnsafePositions = (binaryString, n) => {
@@ -64,21 +60,22 @@ const findUnsafePositions = (binaryString, n) => {
       bitPositions.push(stringIndexPos + 1);
     }
   }
-  console.log('bit positions', JSON.stringify(bitPositions));
   //Calculate unsafe positions for each bit in bitPositions, then sort the unsafe positions
   //and remove duplicates
   const unsafePositions = [];
   for (const position of bitPositions) {
-    const firstOfRow = Math.floor(position / n) * n + 1;
+    const firstOfRow = position % n === 0 ? (Math.floor(position / n) - 1) * n + 1 : Math.floor(position / n) * n + 1;
     for (let count = 0; count < n; count++) {
       unsafePositions.push(firstOfRow + count);
     }
-    const firstOfCol = position % n;
+    let firstOfCol = position;    
+    while (firstOfCol - n > 0) {
+      firstOfCol -= n;
+    }
     for (let count = 0; count < n; count++) {
       unsafePositions.push(firstOfCol + n * count);
     }
   }
-
   return unsafePositions.sort().filter(function(item, pos, ary) {
         return !pos || item != ary[pos - 1];
   });
@@ -89,13 +86,13 @@ const findNextPosition = (unsafePositions, n) => {
   let index = 0;
   unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
-    console.log('unsafe position', unsafePosition)
-    if (unsafePosition >= n ** 2) availablePosition = -1;
+    if (unsafePosition >= n ** 2) {
+      availablePosition = -1;
+      return availablePosition;
+    }
     if (availablePosition === -1) {
-      console.log('avail pos = -1')
       //If the next position equals this position + 1, then the next bit is not safe
       if (unsafePosition + 1 !== unsafePositions[index + 1]) {
-        console.log('setting avail pos');
         availablePosition = unsafePosition + 1;
       }
     }
