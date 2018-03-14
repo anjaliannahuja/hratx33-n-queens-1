@@ -41,14 +41,16 @@ window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
   if (positionToOccupy === -1) {
     return board;
   }
+  console.log('positionToOccupy', positionToOccupy);
   board += (1 << (positionToOccupy - 1));
+  console.log('occupied board', board);
   return window.findNRooksSolution(n, board, 0);
 };
 
 const findBinaryRepresentation = (number, binaryString = '') => {
-  if (number === 0) return '';
+  if (number === 0) return binaryString;
   binaryString += '' + (number % 2);
-  return binaryString + findBinaryRepresentation(Math.floor(number/2));
+  return findBinaryRepresentation(Math.floor(number/2), binaryString);
 }
 
 const findUnsafePositions = (binaryString, n) => {
@@ -77,7 +79,7 @@ const findUnsafePositions = (binaryString, n) => {
     }
   }
   return unsafePositions.sort().filter(function(item, pos, ary) {
-        return !pos || item != ary[pos - 1];
+        return !(item === ary[pos - 1]);
   });
 }
 
@@ -86,6 +88,7 @@ const findNextPosition = (unsafePositions, n) => {
   let index = 0;
   unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
+    console.log('unsafe pos', unsafePosition)
     if (unsafePosition >= n ** 2) {
       availablePosition = -1;
       return availablePosition;
@@ -94,6 +97,7 @@ const findNextPosition = (unsafePositions, n) => {
       //If the next position equals this position + 1, then the next bit is not safe
       if (unsafePosition + 1 !== unsafePositions[index + 1]) {
         availablePosition = unsafePosition + 1;
+        console.log('found available pos', availablePosition)
       }
     }
     index++;
