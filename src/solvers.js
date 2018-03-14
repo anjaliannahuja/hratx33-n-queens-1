@@ -29,7 +29,7 @@
  */
 window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
   console.log('start board', startBoard)
-  let board = startBoard + initial === 0 ? 0 : (1 << initial);
+  let board = startBoard //+ initial === 0 ? 0 : (1 << initial);
   console.log('initial board', board);
   let binaryString = findBinaryRepresentation(board);
   //Put binary representation of board into binaryString
@@ -52,7 +52,7 @@ window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
 const findBinaryRepresentation = (number, binaryString = '') => {
   if (number === 0) return '';
   binaryString += '' + (number % 2);
-  return binaryString + findBinaryRepresentation(Math.floor(number/2), binaryString);
+  return findBinaryRepresentation(Math.floor(number/2), binaryString);
 }
 
 const findUnsafePositions = (binaryString, n) => {
@@ -90,7 +90,7 @@ const findNextPosition = (unsafePositions, n) => {
   unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
     console.log('unsafe position', unsafePosition)
-    if (unsafePosition >= n ** 2) return -1;
+    if (unsafePosition >= n ** 2) availablePosition = -1;
     if (availablePosition === -1) {
       console.log('avail pos = -1')
       //If the next position equals this position + 1, then the next bit is not safe
