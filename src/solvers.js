@@ -27,34 +27,31 @@
  * 4. Recursively call findNRooksSolution with n and board
  *       
  */
-window.findNRooksSolution = function(n, startBoard = 1, initial = 0) {
-  let board = startBoard //+ initial === 0 ? 0 : (1 << initial);
-  let binaryString = findBinaryRepresentation(board);
-  //Put binary representation of board into binaryString
+window.findNRooksSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
+  if (prevBinaryBoard === '') {
+    for (let index = 0; index < Math.pow(n, 2); index++) {
+      if (index === initialBit) {
+        prevBinaryBoard = '1' + prevBinaryBoard;
+      } else {
+        prevBinaryBoard = '0' + prevBinaryBoard;
+      }
+    }
+  }
 
   //Get index + 1 of every bit in the binaryString, put those into binaryPositions
-
-  const unsafePositions = findUnsafePositions(binaryString, n);
+  const unsafePositions = findUnsafePositions(prevBinaryBoard, n);
   //Calculate next available position for rook
-
   const positionToOccupy = findNextPosition(unsafePositions, n);
   if (positionToOccupy === -1) {
-    return board;
+    return prevBinaryBoard;
   }
-  console.log('positionToOccupy', positionToOccupy);
-  board += (1 << (positionToOccupy - 1));
-  console.log('occupied board', board);
-  return window.findNRooksSolution(n, board, 0);
+  const indexToModify = prevBinaryBoard.length - positionToOccupy;
+  const newBoard = prevBinaryBoard.substring(0, indexToModify) + '1' + prevBinaryBoard.substring(indexToModify + 1);
+  return window.findNRooksSolution(n, newBoard);
 };
 
-const findBinaryRepresentation = (number, binaryString = '') => {
-  if (number === 0) return binaryString;
-  binaryString += '' + (number % 2);
-  return findBinaryRepresentation(Math.floor(number/2), binaryString);
-}
-
 const findUnsafePositions = (binaryString, n) => {
-  let flippedString = binaryString.split("").reverse().join("");
+  let flippedString = binaryString.split('').reverse().join('');
   //Positions with a 1
   const bitPositions = [];
   for (let stringIndexPos = 0; stringIndexPos < flippedString.length; stringIndexPos++) {
@@ -62,6 +59,8 @@ const findUnsafePositions = (binaryString, n) => {
       bitPositions.push(stringIndexPos + 1);
     }
   }
+
+  
   //Calculate unsafe positions for each bit in bitPositions, then sort the unsafe positions
   //and remove duplicates
   const unsafePositions = [];
@@ -78,36 +77,36 @@ const findUnsafePositions = (binaryString, n) => {
       unsafePositions.push(firstOfCol + n * count);
     }
   }
-  return unsafePositions.sort().filter(function(item, pos, ary) {
-        return !(item === ary[pos - 1]);
+  return unsafePositions.sort((a, b) => a - b).filter(function(item, pos, ary) {
+    return !(item === ary[pos - 1]);
   });
-}
+};
 
 const findNextPosition = (unsafePositions, n) => {
   let availablePosition = -1;
   let index = 0;
+  if (unsafePositions.length === Math.pow(n, 2)) {
+    return availablePosition;
+  }
   unsafePositions.forEach((unsafePosition) => {
     //If next available position has not been found
-    console.log('unsafe pos', unsafePosition)
-    if (unsafePosition >= n ** 2) {
-      availablePosition = -1;
-      return availablePosition;
-    }
     if (availablePosition === -1) {
       //If the next position equals this position + 1, then the next bit is not safe
       if (unsafePosition + 1 !== unsafePositions[index + 1]) {
         availablePosition = unsafePosition + 1;
-        console.log('found available pos', availablePosition)
       }
     }
     index++;
   });
   return availablePosition;
-}
+};
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  var solutionCount = undefined; //fixme
-
+  var solutionCount = 0; 
+  for (let count = 0; count < n; count++) {
+    console.log(window.findNRooksSolution(n, '', count));
+    solutionCount += 1;
+  }
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
