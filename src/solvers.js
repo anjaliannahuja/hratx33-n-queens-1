@@ -76,7 +76,7 @@ window.countNQueensSolutions = function(n) {
   const solutions = new Set([]);
   for (let count = 1; count <= Math.pow(n, 2); count++) {
     const possibleSolution = window.findNQueensSolution(n, [], count)
-    console.log(JSON.stringify(possibleSolution));
+    JSON.stringify(possibleSolution)
     if (possibleSolution[0] >= n) solutions.add(possibleSolution[1]);    
   }
   console.log('Number of solutions for ' + n + ' queens:', solutions.size);
@@ -154,7 +154,6 @@ const findNextPosition = (unsafePositions, n) => {
     return availablePosition;
   }
   if (unsafePositions[0] > 1) {
-    console.log('hit', unsafePositions);
     return unsafePositions[0] - 1;
   }
   unsafePositions.forEach((unsafePosition) => {
