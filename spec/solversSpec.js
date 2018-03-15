@@ -1,11 +1,6 @@
 describe('solvers', function() {
   window.displayBoard = function() {};
 
-  describe('helper function tests', function() {
-
-    it('should find valid binary representations of numbers')
-  });
-
   describe('findNRooksSolution()', function() {
 
     it('finds a valid solution for n of 1-8', function() {
