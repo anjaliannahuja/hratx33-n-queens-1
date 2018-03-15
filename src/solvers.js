@@ -27,7 +27,7 @@
  * 4. Recursively call findNRooksSolution with n and board
  *       
  */
-window.findNRooksSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
+window.findNRooksSolution = function(n, prevBinaryBoard = '', initialBit = 0, numRooks = 1) {
   if (prevBinaryBoard === '') {
     for (let index = 0; index < Math.pow(n, 2); index++) {
       if (index === initialBit) {
@@ -43,12 +43,21 @@ window.findNRooksSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
   //Calculate next available position for rook
   const positionToOccupy = findNextPosition(unsafePositions, n);
   if (positionToOccupy === -1) {
-    return prevBinaryBoard;
+    return [numRooks, convertStringToBoard(prevBinaryBoard, n)];
   }
   const indexToModify = prevBinaryBoard.length - positionToOccupy;
   const newBoard = prevBinaryBoard.substring(0, indexToModify) + '1' + prevBinaryBoard.substring(indexToModify + 1);
-  return window.findNRooksSolution(n, newBoard);
+  return window.findNRooksSolution(n, newBoard, 0, numRooks + 1);
 };
+
+const convertStringToBoard = (binaryString, n) => {
+    const reversedBoard = binaryString.split('').reverse().join('');
+    const splitBoardByN = [];
+    for (let index = 0; index < reversedBoard.length; index += n) {
+      splitBoardByN.push(reversedBoard.substr(index, n).split(''));
+    }
+    return splitBoardByN;
+}
 
 const getBitPositions = binaryString => {
   let flippedString = binaryString.split('').reverse().join('');
@@ -108,16 +117,17 @@ const findNextPosition = (unsafePositions, n) => {
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
   var solutionCount = 0; 
-  for (let count = 0; count < n; count++) {
-    console.log(window.findNRooksSolution(n, '', count));
-    solutionCount += 1;
+  for (let count = 0; count < Math.pow(n, 2); count++) {
+    const possibleSolution = window.findNRooksSolution(n, '', count);
+    console.log(possibleSolution);
+    solutionCount += possibleSolution[0] >= n ? 1 : 0;
   }
   console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
-window.findNQueensSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
+window.findNQueensSolution = function(n, prevBinaryBoard = '', initialBit = 0, numQueens = 1) {
   if (prevBinaryBoard === '') {
     for (let index = 0; index < Math.pow(n, 2); index++) {
       if (index === initialBit) {
@@ -135,11 +145,11 @@ window.findNQueensSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
   //Calculate next available position for rook
   const positionToOccupy = findNextPosition(unsafePositions, n);
   if (positionToOccupy === -1) {
-    return prevBinaryBoard;
+    return [numQueens, convertStringToBoard(prevBinaryBoard, n)];
   }
   const indexToModify = prevBinaryBoard.length - positionToOccupy;
   const newBoard = prevBinaryBoard.substring(0, indexToModify) + '1' + prevBinaryBoard.substring(indexToModify + 1);
-  return window.findNQueensSolution(n, newBoard);
+  return window.findNQueensSolution(n, newBoard, 0, numQueens + 1);
 };
 
 const calculateDiagonalUnsafePositions = (binaryString, n) => {
@@ -186,9 +196,10 @@ const mergeAndSortUnsafePositions = (unsafeRowsAndCols, unsafeDiags) => {
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
   let solutionCount = 0;
-  for (let count = 0; count < n; count++) {
-    console.log(window.findNQueensSolution(n, '', count));
-    solutionCount += 1;
+  for (let count = 0; count < Math.pow(n, 2); count++) {
+    const possibleSolution = window.findNQueensSolution(n, '', count)
+    console.log(possibleSolution);
+    solutionCount += possibleSolution[0] >= n ? 1 : 0;
   }
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
