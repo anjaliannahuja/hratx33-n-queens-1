@@ -50,7 +50,7 @@ window.findNRooksSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
   return window.findNRooksSolution(n, newBoard);
 };
 
-const findUnsafePositions = (binaryString, n) => {
+const getBitPositions = binaryString => {
   let flippedString = binaryString.split('').reverse().join('');
   //Positions with a 1
   const bitPositions = [];
@@ -59,10 +59,15 @@ const findUnsafePositions = (binaryString, n) => {
       bitPositions.push(stringIndexPos + 1);
     }
   }
+  return bitPositions;
+};
 
-  
+const findUnsafePositions = (binaryString, n) => {
+
+
   //Calculate unsafe positions for each bit in bitPositions, then sort the unsafe positions
   //and remove duplicates
+  const bitPositions = getBitPositions(binarySearch);
   const unsafePositions = [];
   for (const position of bitPositions) {
     const firstOfRow = position % n === 0 ? (Math.floor(position / n) - 1) * n + 1 : Math.floor(position / n) * n + 1;
@@ -118,6 +123,13 @@ window.findNQueensSolution = function(n) {
   console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
   return solution;
 };
+
+const calculateDiagonalUnsafePositions = (binaryString, n) => {
+  const bitPositions = getBitPositions(binaryString);
+  for (const position of bitPositions) {
+    
+  }
+}; 
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
