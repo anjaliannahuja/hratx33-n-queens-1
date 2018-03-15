@@ -67,7 +67,7 @@ const findUnsafePositions = (binaryString, n) => {
 
   //Calculate unsafe positions for each bit in bitPositions, then sort the unsafe positions
   //and remove duplicates
-  const bitPositions = getBitPositions(binarySearch);
+  const bitPositions = getBitPositions(binaryString);
   const unsafePositions = [];
   for (const position of bitPositions) {
     const firstOfRow = position % n === 0 ? (Math.floor(position / n) - 1) * n + 1 : Math.floor(position / n) * n + 1;
@@ -117,24 +117,79 @@ window.countNRooksSolutions = function(n) {
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
-window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
+window.findNQueensSolution = function(n, prevBinaryBoard = '', initialBit = 0) {
+  if (prevBinaryBoard === '') {
+    for (let index = 0; index < Math.pow(n, 2); index++) {
+      if (index === initialBit) {
+        prevBinaryBoard = '1' + prevBinaryBoard;
+      } else {
+        prevBinaryBoard = '0' + prevBinaryBoard;
+      }
+    }
+  }
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
-  return solution;
+  //Get index + 1 of every bit in the binaryString, put those into binaryPositions
+  const unsafeRowsAndCols = findUnsafePositions(prevBinaryBoard, n);
+  const unsafeDiags = calculateDiagonalUnsafePositions(prevBinaryBoard, n);
+  const unsafePositions = mergeAndSortUnsafePositions(unsafeRowsAndCols, unsafeDiags);
+  //Calculate next available position for rook
+  const positionToOccupy = findNextPosition(unsafePositions, n);
+  if (positionToOccupy === -1) {
+    return prevBinaryBoard;
+  }
+  const indexToModify = prevBinaryBoard.length - positionToOccupy;
+  const newBoard = prevBinaryBoard.substring(0, indexToModify) + '1' + prevBinaryBoard.substring(indexToModify + 1);
+  return window.findNQueensSolution(n, newBoard);
 };
 
 const calculateDiagonalUnsafePositions = (binaryString, n) => {
   const bitPositions = getBitPositions(binaryString);
+  const unsafePositions = [];
   for (const position of bitPositions) {
-    
+    let downRightDiag = position;
+    // Check both base conditions for being on outside of matrix
+    while (!((downRightDiag >= 1 && downRightDiag <= n) || downRightDiag % n === 1)) {
+      downRightDiag = downRightDiag - (n + 1);
+    } 
+
+    while (!(downRightDiag % n === 0 || (downRightDiag > n * (n - 1) && downRightDiag <= n * n))) {
+      unsafePositions.push(downRightDiag);
+      downRightDiag = downRightDiag + (n + 1);
+    }
+
+    unsafePositions.push(downRightDiag);
+
+    let upRightDiag = position;
+    while (!((upRightDiag > n * (n - 1) && upRightDiag <= n * n) || upRightDiag % n === 1)) {
+      upRightDiag = upRightDiag + (n - 1);
+    }
+
+    while (!((upRightDiag >= 1 && upRightDiag <= n) || upRightDiag % n === 0)) {
+      unsafePositions.push(upRightDiag);
+      upRightDiag = upRightDiag - (n - 1);
+    }
+
+    unsafePositions.push(upRightDiag);
   }
-}; 
+
+  return unsafePositions;
+};
+
+const mergeAndSortUnsafePositions = (unsafeRowsAndCols, unsafeDiags) => {
+  const unsafePositions = unsafeDiags.concat(unsafeRowsAndCols);
+
+  return unsafePositions.sort((a, b) => a - b).filter(function(item, pos, ary) {
+    return !(item === ary[pos - 1]);
+  });
+} 
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
-
+  let solutionCount = 0;
+  for (let count = 0; count < n; count++) {
+    console.log(window.findNQueensSolution(n, '', count));
+    solutionCount += 1;
+  }
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
